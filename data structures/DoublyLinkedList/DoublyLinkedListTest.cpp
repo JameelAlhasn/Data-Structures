@@ -1,4 +1,3 @@
-#include <iostream>
 #include "DoublyLinkedList.h"
 
 void test_basic_operations() {
