@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Stack.h"
 void test_basic_operations()
 {
