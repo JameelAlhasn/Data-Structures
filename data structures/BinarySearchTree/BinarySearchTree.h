@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 
 template <typename T>
 class BinarySearchTree {
@@ -46,14 +45,15 @@ private:
             TreeNode* succ = node->right;
             while (succ->left) succ = succ->left;
             node->val = succ->val;
-            node->right = remove(node->right, succ->val, removed = false); // don't double count
+            bool dummy = false;
+            node->right = remove(node->right, succ->val, dummy);
         }
         return node;
     }
 
     void Preorder(TreeNode* node) const {
         if (!node) return;
-        cout << node->val << ' ';
+        std::cout << node->val << ' ';
         Preorder(node->left);
         Preorder(node->right);
     }
@@ -61,7 +61,7 @@ private:
     void Inorder(TreeNode* node) const {
         if (!node) return;
         Inorder(node->left);
-        cout << node->val << ' ';
+        std::cout << node->val << ' ';
         Inorder(node->right);
     }
 
@@ -69,7 +69,7 @@ private:
         if (!node) return;
         Postorder(node->left);
         Postorder(node->right);
-        cout << node->val << ' ';
+        std::cout << node->val << ' ';
     }
 
     void clear(TreeNode* node) {
@@ -103,16 +103,16 @@ public:
 
     void printPreorder() const {
         Preorder(root);
-        cout << endl;
+        std::cout << '\n';
     }
 
     void printInorder() const {
         Inorder(root);
-        cout << endl;
+        std::cout << '\n';
     }
 
     void printPostorder() const {
         Postorder(root);
-        cout << endl;
+        std::cout << '\n';
     }
 };
