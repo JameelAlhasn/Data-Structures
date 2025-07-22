@@ -1,4 +1,3 @@
-// #pragma once
 #include <vector>
 #include <list>
 #include <utility>
@@ -8,7 +7,8 @@
 
 template <typename K, typename V>
 class HashMap {
-    static const int BucketCount = 131;
+    static constexpr double MAX_LOAD_FACTOR = 0.75;
+    int bucket_count;
     std::vector<std::list<std::pair<K, V>>> table;
     int size_;
 
@@ -19,14 +19,35 @@ class HashMap {
         x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
         x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
         x = x ^ (x >> 31);
-        return x % BucketCount;
+        return x % bucket_count;
+    }
+
+    void rehash() {
+        int old_bucket_count = bucket_count;
+        bucket_count *= 2;
+        std::vector<std::list<std::pair<K, V>>> new_table(bucket_count);
+
+        for (const auto& bucket : table) {
+            for (const auto& [key, value] : bucket) {
+                size_t idx = hash(key);
+                new_table[idx].emplace_back(key, value);
+            }
+        }
+
+        table = std::move(new_table);
+    }
+
+    void check_load_and_resize() {
+        if (static_cast<double>(size_ + 1) / bucket_count > MAX_LOAD_FACTOR) {
+            rehash();
+        }
     }
 
 public:
-    HashMap() : table(BucketCount), size_(0) {}
+    HashMap() : bucket_count(131), table(bucket_count), size_(0) {}
 
-    HashMap(const HashMap& other) : table(BucketCount), size_(0) {
-        for (int i = 0; i < BucketCount; ++i) {
+    HashMap(const HashMap& other) : bucket_count(other.bucket_count), table(bucket_count), size_(0) {
+        for (int i = 0; i < bucket_count; ++i) {
             for (const auto& p : other.table[i]) {
                 table[i].emplace_back(p.first, p.second);
                 ++size_;
@@ -37,7 +58,9 @@ public:
     HashMap& operator=(const HashMap& other) {
         if (this != &other) {
             clear();
-            for (int i = 0; i < BucketCount; ++i) {
+            bucket_count = other.bucket_count;
+            table = std::vector<std::list<std::pair<K, V>>>(bucket_count);
+            for (int i = 0; i < bucket_count; ++i) {
                 for (const auto& p : other.table[i]) {
                     table[i].emplace_back(p.first, p.second);
                     ++size_;
@@ -48,6 +71,7 @@ public:
     }
 
     V& operator[](const K& key) {
+        check_load_and_resize();
         size_t idx = hash(key);
         for (auto& [k, v] : table[idx])
             if (k == key)
@@ -66,6 +90,7 @@ public:
     }
 
     bool insert(const K& key, const V& value) {
+        check_load_and_resize();
         size_t idx = hash(key);
         for (const auto& [k, _] : table[idx])
             if (k == key)
