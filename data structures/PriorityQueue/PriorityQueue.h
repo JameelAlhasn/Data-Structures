@@ -1,19 +1,19 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-using namespace std;
+#include <stdexcept>
 
 template <typename T>
 class PriorityQueue {
 private:
-    vector<T> heap;
+    std::vector<T> heap;
     int size_;
-    unordered_map<T, int> mp;
+    std::unordered_map<T, int> mp;
 
     void up(int i) {
         while (i > 0 && heap[(i - 1) / 2] < heap[i]) {
             int p = (i - 1) / 2;
-            swap(heap[i], heap[p]);
+            std::swap(heap[i], heap[p]);
             mp[heap[i]] = i;
             mp[heap[p]] = p;
             i = p;
@@ -28,7 +28,7 @@ private:
             if (left < size_ && heap[left] > heap[largest]) largest = left;
             if (right < size_ && heap[right] > heap[largest]) largest = right;
             if (largest == i) break;
-            swap(heap[i], heap[largest]);
+            std::swap(heap[i], heap[largest]);
             mp[heap[i]] = i;
             mp[heap[largest]] = largest;
             i = largest;
@@ -38,7 +38,7 @@ private:
 public:
     PriorityQueue() : size_(0) {}
 
-    PriorityQueue &operator=(const PriorityQueue &other) {
+    PriorityQueue& operator=(const PriorityQueue& other) {
         if (this != &other) {
             heap = other.heap;
             mp = other.mp;
@@ -69,7 +69,7 @@ public:
     }
 
     T top() {
-        if (empty()) throw runtime_error("Empty PriorityQueue");
+        if (empty()) throw std::runtime_error("Empty PriorityQueue");
         return heap[0];
     }
 };
